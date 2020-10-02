@@ -38,6 +38,10 @@ export function handleBuyBaseToken(event: BuyBaseToken): void {
   // Entity fields can be set based on event parameters
   entity.buyer = event.params.buyer
   entity.receiveBase = event.params.receiveBase
+  entity.payQuote = event.params.payQuote
+
+  let contract = Contract.bind(event.address)
+  entity.midPrice = contract.getMidPrice()
 
   // Entities can be written to the store with `.save()`
   entity.save()

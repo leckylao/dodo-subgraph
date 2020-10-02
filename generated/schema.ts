@@ -68,4 +68,22 @@ export class ExampleEntity extends Entity {
   set receiveBase(value: BigInt) {
     this.set("receiveBase", Value.fromBigInt(value));
   }
+
+  get payQuote(): BigInt {
+    let value = this.get("payQuote");
+    return value.toBigInt();
+  }
+
+  set payQuote(value: BigInt) {
+    this.set("payQuote", Value.fromBigInt(value));
+  }
+
+  get midPrice(): BigInt {
+    let value = this.get("midPrice");
+    return value.toBigInt();
+  }
+
+  set midPrice(value: BigInt) {
+    this.set("midPrice", Value.fromBigInt(value));
+  }
 }

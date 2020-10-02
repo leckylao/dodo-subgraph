@@ -3,4 +3,6 @@ type ExampleEntity @entity {
   count: BigInt!
   buyer: Bytes! # address
   receiveBase: BigInt! # uint256
+  payQuote: BigInt! # uint256
+  midPrice: BigInt! # uint256
 }
