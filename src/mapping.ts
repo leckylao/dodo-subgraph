@@ -16,17 +16,17 @@ import {
   UpdateMaintainerFeeRate,
   Withdraw
 } from "../generated/Contract/Contract"
-import { ExampleEntity } from "../generated/schema"
+import { Buyer, Seller } from "../generated/schema"
 
 export function handleBuyBaseToken(event: BuyBaseToken): void {
   // Entities can be loaded from the store using a string ID; this ID
   // needs to be unique across all entities of the same type
-  let entity = ExampleEntity.load(event.transaction.from.toHex())
+  let entity = Buyer.load(event.transaction.from.toHex())
 
   // Entities only exist after they have been saved to the store;
   // `null` checks allow to create entities on demand
   if (entity == null) {
-    entity = new ExampleEntity(event.transaction.from.toHex())
+    entity = new Buyer(event.transaction.from.toHex())
 
     // Entity fields can be set using simple assignments
     entity.count = BigInt.fromI32(0)
@@ -132,7 +132,32 @@ export function handleOwnershipTransferPrepared(
 
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
 
-export function handleSellBaseToken(event: SellBaseToken): void {}
+export function handleSellBaseToken(event: SellBaseToken): void {
+  let entity = Seller.load(event.transaction.from.toHex())
+
+  // Entities only exist after they have been saved to the store;
+  // `null` checks allow to create entities on demand
+  if (entity == null) {
+    entity = new Seller(event.transaction.from.toHex())
+
+    // Entity fields can be set using simple assignments
+    entity.count = BigInt.fromI32(0)
+  }
+
+  // BigInt and BigDecimal math are supported
+  entity.count = entity.count + BigInt.fromI32(1)
+
+  // Entity fields can be set based on event parameters
+  entity.seller = event.params.seller
+  entity.payBase = event.params.payBase
+  entity.receiveQuote = event.params.receiveQuote
+
+  let contract = Contract.bind(event.address)
+  entity.midPrice = contract.getMidPrice()
+
+  // Entities can be written to the store with `.save()`
+  entity.save()
+}
 
 export function handleUpdateGasPriceLimit(event: UpdateGasPriceLimit): void {}
 

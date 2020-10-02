@@ -1,8 +1,17 @@
-type ExampleEntity @entity {
+type Buyer @entity {
   id: ID!
   count: BigInt!
   buyer: Bytes! # address
   receiveBase: BigInt! # uint256
   payQuote: BigInt! # uint256
+  midPrice: BigInt! # uint256
+}
+
+type Seller @entity {
+  id: ID!
+  count: BigInt!
+  seller: Bytes! # address
+  receiveQuote: BigInt! # uint256
+  payBase: BigInt! # uint256
   midPrice: BigInt! # uint256
 }

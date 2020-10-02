@@ -12,7 +12,7 @@ import {
   BigDecimal
 } from "@graphprotocol/graph-ts";
 
-export class ExampleEntity extends Entity {
+export class Buyer extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -20,17 +20,17 @@ export class ExampleEntity extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id !== null, "Cannot save ExampleEntity entity without an ID");
+    assert(id !== null, "Cannot save Buyer entity without an ID");
     assert(
       id.kind == ValueKind.STRING,
-      "Cannot save ExampleEntity entity with non-string ID. " +
+      "Cannot save Buyer entity with non-string ID. " +
         'Considering using .toHex() to convert the "id" to a string.'
     );
-    store.set("ExampleEntity", id.toString(), this);
+    store.set("Buyer", id.toString(), this);
   }
 
-  static load(id: string): ExampleEntity | null {
-    return store.get("ExampleEntity", id) as ExampleEntity | null;
+  static load(id: string): Buyer | null {
+    return store.get("Buyer", id) as Buyer | null;
   }
 
   get id(): string {
@@ -76,6 +76,82 @@ export class ExampleEntity extends Entity {
 
   set payQuote(value: BigInt) {
     this.set("payQuote", Value.fromBigInt(value));
+  }
+
+  get midPrice(): BigInt {
+    let value = this.get("midPrice");
+    return value.toBigInt();
+  }
+
+  set midPrice(value: BigInt) {
+    this.set("midPrice", Value.fromBigInt(value));
+  }
+}
+
+export class Seller extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Seller entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Seller entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Seller", id.toString(), this);
+  }
+
+  static load(id: string): Seller | null {
+    return store.get("Seller", id) as Seller | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get count(): BigInt {
+    let value = this.get("count");
+    return value.toBigInt();
+  }
+
+  set count(value: BigInt) {
+    this.set("count", Value.fromBigInt(value));
+  }
+
+  get seller(): Bytes {
+    let value = this.get("seller");
+    return value.toBytes();
+  }
+
+  set seller(value: Bytes) {
+    this.set("seller", Value.fromBytes(value));
+  }
+
+  get receiveQuote(): BigInt {
+    let value = this.get("receiveQuote");
+    return value.toBigInt();
+  }
+
+  set receiveQuote(value: BigInt) {
+    this.set("receiveQuote", Value.fromBigInt(value));
+  }
+
+  get payBase(): BigInt {
+    let value = this.get("payBase");
+    return value.toBigInt();
+  }
+
+  set payBase(value: BigInt) {
+    this.set("payBase", Value.fromBigInt(value));
   }
 
   get midPrice(): BigInt {
