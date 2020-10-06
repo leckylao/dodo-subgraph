@@ -12,7 +12,7 @@ import {
   BigDecimal
 } from "@graphprotocol/graph-ts";
 
-export class Buyer extends Entity {
+export class Token extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -20,17 +20,17 @@ export class Buyer extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id !== null, "Cannot save Buyer entity without an ID");
+    assert(id !== null, "Cannot save Token entity without an ID");
     assert(
       id.kind == ValueKind.STRING,
-      "Cannot save Buyer entity with non-string ID. " +
+      "Cannot save Token entity with non-string ID. " +
         'Considering using .toHex() to convert the "id" to a string.'
     );
-    store.set("Buyer", id.toString(), this);
+    store.set("Token", id.toString(), this);
   }
 
-  static load(id: string): Buyer | null {
-    return store.get("Buyer", id) as Buyer | null;
+  static load(id: string): Token | null {
+    return store.get("Token", id) as Token | null;
   }
 
   get id(): string {
@@ -42,53 +42,80 @@ export class Buyer extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get count(): BigInt {
-    let value = this.get("count");
+  get symbol(): string {
+    let value = this.get("symbol");
+    return value.toString();
+  }
+
+  set symbol(value: string) {
+    this.set("symbol", Value.fromString(value));
+  }
+
+  get name(): string {
+    let value = this.get("name");
+    return value.toString();
+  }
+
+  set name(value: string) {
+    this.set("name", Value.fromString(value));
+  }
+
+  get decimals(): BigInt {
+    let value = this.get("decimals");
     return value.toBigInt();
   }
 
-  set count(value: BigInt) {
-    this.set("count", Value.fromBigInt(value));
+  set decimals(value: BigInt) {
+    this.set("decimals", Value.fromBigInt(value));
   }
 
-  get buyer(): Bytes {
-    let value = this.get("buyer");
-    return value.toBytes();
-  }
-
-  set buyer(value: Bytes) {
-    this.set("buyer", Value.fromBytes(value));
-  }
-
-  get receiveBase(): BigInt {
-    let value = this.get("receiveBase");
+  get totalSupply(): BigInt {
+    let value = this.get("totalSupply");
     return value.toBigInt();
   }
 
-  set receiveBase(value: BigInt) {
-    this.set("receiveBase", Value.fromBigInt(value));
+  set totalSupply(value: BigInt) {
+    this.set("totalSupply", Value.fromBigInt(value));
   }
 
-  get payQuote(): BigInt {
-    let value = this.get("payQuote");
+  get tradeVolume(): BigDecimal {
+    let value = this.get("tradeVolume");
+    return value.toBigDecimal();
+  }
+
+  set tradeVolume(value: BigDecimal) {
+    this.set("tradeVolume", Value.fromBigDecimal(value));
+  }
+
+  get tradeVolumeUSD(): BigDecimal {
+    let value = this.get("tradeVolumeUSD");
+    return value.toBigDecimal();
+  }
+
+  set tradeVolumeUSD(value: BigDecimal) {
+    this.set("tradeVolumeUSD", Value.fromBigDecimal(value));
+  }
+
+  get txCount(): BigInt {
+    let value = this.get("txCount");
     return value.toBigInt();
   }
 
-  set payQuote(value: BigInt) {
-    this.set("payQuote", Value.fromBigInt(value));
+  set txCount(value: BigInt) {
+    this.set("txCount", Value.fromBigInt(value));
   }
 
-  get midPrice(): BigInt {
-    let value = this.get("midPrice");
-    return value.toBigInt();
+  get totalLiquidity(): BigDecimal {
+    let value = this.get("totalLiquidity");
+    return value.toBigDecimal();
   }
 
-  set midPrice(value: BigInt) {
-    this.set("midPrice", Value.fromBigInt(value));
+  set totalLiquidity(value: BigDecimal) {
+    this.set("totalLiquidity", Value.fromBigDecimal(value));
   }
 }
 
-export class Seller extends Entity {
+export class Pair extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -96,17 +123,17 @@ export class Seller extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id !== null, "Cannot save Seller entity without an ID");
+    assert(id !== null, "Cannot save Pair entity without an ID");
     assert(
       id.kind == ValueKind.STRING,
-      "Cannot save Seller entity with non-string ID. " +
+      "Cannot save Pair entity with non-string ID. " +
         'Considering using .toHex() to convert the "id" to a string.'
     );
-    store.set("Seller", id.toString(), this);
+    store.set("Pair", id.toString(), this);
   }
 
-  static load(id: string): Seller | null {
-    return store.get("Seller", id) as Seller | null;
+  static load(id: string): Pair | null {
+    return store.get("Pair", id) as Pair | null;
   }
 
   get id(): string {
@@ -118,48 +145,75 @@ export class Seller extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get count(): BigInt {
-    let value = this.get("count");
-    return value.toBigInt();
+  get baseToken(): string {
+    let value = this.get("baseToken");
+    return value.toString();
   }
 
-  set count(value: BigInt) {
-    this.set("count", Value.fromBigInt(value));
+  set baseToken(value: string) {
+    this.set("baseToken", Value.fromString(value));
   }
 
-  get seller(): Bytes {
-    let value = this.get("seller");
-    return value.toBytes();
+  get quoteToken(): string {
+    let value = this.get("quoteToken");
+    return value.toString();
   }
 
-  set seller(value: Bytes) {
-    this.set("seller", Value.fromBytes(value));
+  set quoteToken(value: string) {
+    this.set("quoteToken", Value.fromString(value));
   }
 
-  get receiveQuote(): BigInt {
-    let value = this.get("receiveQuote");
-    return value.toBigInt();
-  }
-
-  set receiveQuote(value: BigInt) {
-    this.set("receiveQuote", Value.fromBigInt(value));
-  }
-
-  get payBase(): BigInt {
-    let value = this.get("payBase");
-    return value.toBigInt();
-  }
-
-  set payBase(value: BigInt) {
-    this.set("payBase", Value.fromBigInt(value));
-  }
-
-  get midPrice(): BigInt {
+  get midPrice(): BigDecimal {
     let value = this.get("midPrice");
+    return value.toBigDecimal();
+  }
+
+  set midPrice(value: BigDecimal) {
+    this.set("midPrice", Value.fromBigDecimal(value));
+  }
+
+  get volumeBaseToken(): BigDecimal {
+    let value = this.get("volumeBaseToken");
+    return value.toBigDecimal();
+  }
+
+  set volumeBaseToken(value: BigDecimal) {
+    this.set("volumeBaseToken", Value.fromBigDecimal(value));
+  }
+
+  get volumeQuoteToken(): BigDecimal {
+    let value = this.get("volumeQuoteToken");
+    return value.toBigDecimal();
+  }
+
+  set volumeQuoteToken(value: BigDecimal) {
+    this.set("volumeQuoteToken", Value.fromBigDecimal(value));
+  }
+
+  get txCount(): BigInt {
+    let value = this.get("txCount");
     return value.toBigInt();
   }
 
-  set midPrice(value: BigInt) {
-    this.set("midPrice", Value.fromBigInt(value));
+  set txCount(value: BigInt) {
+    this.set("txCount", Value.fromBigInt(value));
+  }
+
+  get createdAtTimestamp(): BigInt {
+    let value = this.get("createdAtTimestamp");
+    return value.toBigInt();
+  }
+
+  set createdAtTimestamp(value: BigInt) {
+    this.set("createdAtTimestamp", Value.fromBigInt(value));
+  }
+
+  get createdAtBlockNumber(): BigInt {
+    let value = this.get("createdAtBlockNumber");
+    return value.toBigInt();
+  }
+
+  set createdAtBlockNumber(value: BigInt) {
+    this.set("createdAtBlockNumber", Value.fromBigInt(value));
   }
 }

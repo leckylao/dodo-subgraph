@@ -28,6 +28,8 @@ dataSources:
         - UpdateLiquidityProviderFeeRate
         - UpdateMaintainerFeeRate
         - Withdraw
+        - Pair
+        - Token
       abis:
         - name: Contract
           file: ./abis/Contract.json
