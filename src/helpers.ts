@@ -45,9 +45,12 @@ export function createPair(address: Address, event: ethereum.Event): void {
     createToken(baseTokenAddress)
     createToken(quoteTokenAddress)
 
-    pair.baseToken = baseTokenAddress.toHexString();
-    pair.quoteToken = quoteTokenAddress.toHexString();
-
+    pair.baseToken = baseTokenAddress.toHexString()
+    pair.quoteToken = quoteTokenAddress.toHexString()
+    pair.midPrice = ZERO_BD
+    pair.volumeBaseToken = ZERO_BD
+    pair.volumeQuoteToken = ZERO_BD
+    pair.txCount = ZERO_BI
     pair.createdAtTimestamp = event.block.timestamp
     pair.createdAtBlockNumber = event.block.number
     pair.save()
