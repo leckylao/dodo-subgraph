@@ -163,13 +163,21 @@ export class Pair extends Entity {
     this.set("quoteToken", Value.fromString(value));
   }
 
-  get midPrice(): BigDecimal {
+  get midPrice(): BigDecimal | null {
     let value = this.get("midPrice");
-    return value.toBigDecimal();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
   }
 
-  set midPrice(value: BigDecimal) {
-    this.set("midPrice", Value.fromBigDecimal(value));
+  set midPrice(value: BigDecimal | null) {
+    if (value === null) {
+      this.unset("midPrice");
+    } else {
+      this.set("midPrice", Value.fromBigDecimal(value as BigDecimal));
+    }
   }
 
   get volumeBaseToken(): BigDecimal {
