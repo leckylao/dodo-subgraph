@@ -33,6 +33,8 @@ dataSources:
       abis:
         - name: Contract
           file: ./abis/Contract.json
+        - name: ERC20
+          file: ./abis/ERC20.json
       eventHandlers:
         - event: BuyBaseToken(indexed address,uint256,uint256)
           handler: handleBuyBaseToken

@@ -1,4 +1,4 @@
-import { BigInt } from "@graphprotocol/graph-ts"
+import { BigInt, BigDecimal } from "@graphprotocol/graph-ts"
 import {
   Contract,
   BuyBaseToken,
@@ -16,35 +16,48 @@ import {
   UpdateMaintainerFeeRate,
   Withdraw
 } from "../generated/Contract/Contract"
-import { Buyer, Seller } from "../generated/schema"
+import { Pair, Token } from "../generated/schema"
+import {
+  createPair,
+  createToken,
+  ONE_BI,
+  convertTokenToDecimal
+} from './helpers'
 
 export function handleBuyBaseToken(event: BuyBaseToken): void {
   // Entities can be loaded from the store using a string ID; this ID
   // needs to be unique across all entities of the same type
-  let entity = Buyer.load(event.transaction.from.toHex())
+  createPair(event.address, event)
+  let pair = Pair.load(event.address.toHexString())
 
-  // Entities only exist after they have been saved to the store;
-  // `null` checks allow to create entities on demand
-  if (entity == null) {
-    entity = new Buyer(event.transaction.from.toHex())
+  let baseToken = Token.load(pair.baseToken)
+  let quoteToken = Token.load(pair.quoteToken)
 
-    // Entity fields can be set using simple assignments
-    entity.count = BigInt.fromI32(0)
-  }
-
-  // BigInt and BigDecimal math are supported
-  entity.count = entity.count + BigInt.fromI32(1)
-
-  // Entity fields can be set based on event parameters
-  entity.buyer = event.params.buyer
-  entity.receiveBase = event.params.receiveBase
-  entity.payQuote = event.params.payQuote
+  let baseTokenDecimals = baseToken.decimals
+  let quoteTokenDecimals = quoteToken.decimals
 
   let contract = Contract.bind(event.address)
-  entity.midPrice = contract.getMidPrice()
+
+  // Entity fields can be set based on event parameters
+  baseToken.tradeVolume = baseToken.tradeVolume + convertTokenToDecimal(event.params.receiveBase, baseTokenDecimals)
+  baseToken.tradeVolumeUSD = baseToken.tradeVolumeUSD + convertTokenToDecimal(event.params.payQuote, quoteTokenDecimals)
+  baseToken.txCount = baseToken.txCount + ONE_BI
+  baseToken.totalLiquidity = baseToken.totalLiquidity + convertTokenToDecimal(contract._BASE_BALANCE_(), baseTokenDecimals)
+  baseToken.save()
+
+  quoteToken.tradeVolume = quoteToken.tradeVolume + convertTokenToDecimal(event.params.payQuote, quoteTokenDecimals)
+  quoteToken.tradeVolumeUSD = quoteToken.tradeVolumeUSD + convertTokenToDecimal(event.params.payQuote, quoteTokenDecimals)
+  quoteToken.txCount = quoteToken.txCount + ONE_BI
+  quoteToken.totalLiquidity = quoteToken.totalLiquidity + convertTokenToDecimal(contract._QUOTE_BALANCE_(), quoteTokenDecimals)
+  quoteToken.save()
+
+  pair.midPrice = convertTokenToDecimal(contract.getMidPrice(), BigInt.fromI32(6))
+  pair.volumeBaseToken = pair.volumeBaseToken + convertTokenToDecimal(event.params.receiveBase, baseTokenDecimals)
+  pair.volumeQuoteToken = pair.volumeQuoteToken + convertTokenToDecimal(event.params.payQuote, quoteTokenDecimals)
+  pair.txCount = pair.txCount + ONE_BI
 
   // Entities can be written to the store with `.save()`
-  entity.save()
+  pair.save()
 
   // Note: If a handler doesn't require existing field values, it is faster
   // _not_ to load the entity from the store. Instead, create it fresh with
@@ -133,30 +146,37 @@ export function handleOwnershipTransferPrepared(
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
 
 export function handleSellBaseToken(event: SellBaseToken): void {
-  let entity = Seller.load(event.transaction.from.toHex())
+  // Entities can be loaded from the store using a string ID; this ID
+  // needs to be unique across all entities of the same type
+  createPair(event.address, event)
+  let pair = Pair.load(event.address.toHexString())
 
-  // Entities only exist after they have been saved to the store;
-  // `null` checks allow to create entities on demand
-  if (entity == null) {
-    entity = new Seller(event.transaction.from.toHex())
-
-    // Entity fields can be set using simple assignments
-    entity.count = BigInt.fromI32(0)
-  }
-
-  // BigInt and BigDecimal math are supported
-  entity.count = entity.count + BigInt.fromI32(1)
-
-  // Entity fields can be set based on event parameters
-  entity.seller = event.params.seller
-  entity.payBase = event.params.payBase
-  entity.receiveQuote = event.params.receiveQuote
+  let baseToken = Token.load(pair.baseToken)
+  let quoteToken = Token.load(pair.quoteToken)
+  let baseTokenDecimals = baseToken.decimals
+  let quoteTokenDecimals = quoteToken.decimals
 
   let contract = Contract.bind(event.address)
-  entity.midPrice = contract.getMidPrice()
+  // Entity fields can be set based on event parameters
+  baseToken.tradeVolume = baseToken.tradeVolume + convertTokenToDecimal(event.params.payBase, baseTokenDecimals)
+  baseToken.tradeVolumeUSD = baseToken.tradeVolumeUSD + convertTokenToDecimal(event.params.receiveQuote, quoteTokenDecimals)
+  baseToken.txCount = baseToken.txCount + ONE_BI
+  baseToken.totalLiquidity = baseToken.totalLiquidity + convertTokenToDecimal(contract._BASE_BALANCE_(), baseTokenDecimals)
+  baseToken.save()
+
+  quoteToken.tradeVolume = quoteToken.tradeVolume + convertTokenToDecimal(event.params.receiveQuote, quoteTokenDecimals)
+  quoteToken.tradeVolumeUSD = quoteToken.tradeVolumeUSD + convertTokenToDecimal(event.params.receiveQuote, quoteTokenDecimals)
+  quoteToken.txCount = quoteToken.txCount + ONE_BI
+  quoteToken.totalLiquidity = quoteToken.totalLiquidity + convertTokenToDecimal(contract._QUOTE_BALANCE_(), quoteTokenDecimals)
+  quoteToken.save()
+
+  pair.midPrice = convertTokenToDecimal(contract.getMidPrice(), BigInt.fromI32(6))
+  pair.volumeBaseToken = pair.volumeBaseToken + convertTokenToDecimal(event.params.payBase, baseTokenDecimals)
+  pair.volumeQuoteToken = pair.volumeQuoteToken + convertTokenToDecimal(event.params.receiveQuote, quoteTokenDecimals)
+  pair.txCount = pair.txCount + ONE_BI
 
   // Entities can be written to the store with `.save()`
-  entity.save()
+  pair.save()
 }
 
 export function handleUpdateGasPriceLimit(event: UpdateGasPriceLimit): void {}
